@@ -8,9 +8,9 @@ const router = Router();
 router.post(
   '/api/v1/pageviews/visit',
   validate('body', storePageViewVisitBody),
-  (req, res) => {
+  async (req, res) => {
     return res.json(
-      storePageViewVisit({
+      await storePageViewVisit({
         ip: req.ip,
         userAgent: req.get('user-agent'),
         body: req.body,
