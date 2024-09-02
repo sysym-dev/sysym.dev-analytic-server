@@ -25,3 +25,10 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
     visitAt: body.visitAt,
   });
 };
+
+exports.storePageViewLeave = async ({ id, body }) => {
+  return await PageView.updateOne(
+    { _id: id },
+    { duration: body.duration, bounce: body.bounce, leaveAt: body.leaveAt },
+  );
+};

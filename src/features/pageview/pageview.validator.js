@@ -1,4 +1,5 @@
 const { z } = require('zod');
+const { isValidObjectId } = require('mongoose');
 
 exports.storePageViewVisitBody = z.object({
   visitAt: z.string().datetime(),
@@ -13,4 +14,11 @@ exports.storePageViewVisitBody = z.object({
     width: z.number().positive(),
     height: z.number().positive(),
   }),
+});
+
+exports.storePageViewLeaveBody = z.object({
+  id: z.string().refine((d) => isValidObjectId(d)),
+  leaveAt: z.string().datetime(),
+  bounce: z.boolean(),
+  duration: z.number().positive(),
 });
