@@ -1,7 +1,7 @@
 const { z } = require('zod');
 
 exports.storePageViewVisitBody = z.object({
-  date: z.string().datetime(),
+  visitAt: z.string().datetime(),
   lang: z.string(),
   loadTime: z.number().positive(),
   page: z.object({
