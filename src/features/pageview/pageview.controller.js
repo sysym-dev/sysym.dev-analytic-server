@@ -28,7 +28,7 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
 
 exports.storePageViewLeave = async ({ id, body }) => {
   return await PageView.updateOne(
-    { _id: id },
+    { _id: id, leaveAt: null },
     { duration: body.duration, bounce: body.bounce, leaveAt: body.leaveAt },
   );
 };
