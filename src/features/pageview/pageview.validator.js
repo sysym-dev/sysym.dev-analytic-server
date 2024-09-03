@@ -14,11 +14,7 @@ exports.storePageViewVisitBody = z.object({
     width: z.number().positive(),
     height: z.number().positive(),
   }),
-  visitorId: z
-    .string()
-    .refine((d) => isValidObjectId(d))
-    .optional()
-    .nullable(),
+  visitorId: z.string().optional().nullable(),
 });
 
 exports.storePageViewLeaveBody = z.object({
