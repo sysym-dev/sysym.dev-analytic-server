@@ -8,7 +8,7 @@ exports.storePageViewVisitBody = z.object({
   page: z.object({
     title: z.string(),
     url: z.string().url(),
-    refferer: z.string().url().optional().nullable(),
+    refferer: z.string().url().optional().nullable().or(z.literal('')),
   }),
   screen: z.object({
     width: z.number().positive(),
