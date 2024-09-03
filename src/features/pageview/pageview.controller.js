@@ -8,7 +8,7 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
   const geo = await getGeoFromIp(requestIp);
   const parsedUserAgent = bowser.parse(userAgent);
 
-  const visitor = await findVisitorAndUniqueStatus(body.visitor_id);
+  const visitor = await findVisitorAndUniqueStatus(body.visitorId);
 
   return await PageView.create({
     browser: parsedUserAgent.browser.name,
