@@ -20,6 +20,14 @@ const pageViewSchema = new mongoose.Schema(
     city: String,
     region: String,
     country: String,
+    visitor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Visitor',
+    },
+    unique: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true },
 );

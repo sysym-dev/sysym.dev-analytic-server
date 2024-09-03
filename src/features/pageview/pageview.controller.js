@@ -1,11 +1,14 @@
 const { getGeoFromIp } = require('../../cores/ipgeo');
 const bowser = require('bowser');
 const { PageView } = require('./pageview.model');
+const { findVisitorAndUniqueStatus } = require('../visitor/visitor.service');
 
 exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
   const ip = requestIp === '::1' ? process.env.LOCAL_IP : requestIp;
   const geo = await getGeoFromIp(requestIp);
   const parsedUserAgent = bowser.parse(userAgent);
+
+  const visitor = await findVisitorAndUniqueStatus(body.visitorId);
 
   return await PageView.create({
     browser: parsedUserAgent.browser.name,
@@ -23,6 +26,8 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
     title: body.page.title,
     url: body.page.url,
     visitAt: body.visitAt,
+    visitor: visitor.visitor._id,
+    unique: visitor.unique,
   });
 };
 
