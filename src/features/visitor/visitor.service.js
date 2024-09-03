@@ -1,7 +1,8 @@
 const { Visitor } = require('./visitor.model');
+const { isValidObjectId } = require('mongoose');
 
 exports.findVisitorAndUniqueStatus = async (visitorId) => {
-  if (!visitorId) {
+  if (!visitorId || !isValidObjectId(visitorId)) {
     const visitor = await Visitor.create({
       firstVisitAt: new Date(),
       lastVisitAt: new Date(),
