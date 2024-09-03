@@ -19,6 +19,8 @@ exports.storePageViewVisitBody = z.object({
 exports.storePageViewLeaveBody = z.object({
   id: z.string().refine((d) => isValidObjectId(d)),
   leaveAt: z.string().datetime(),
-  bounce: z.boolean(),
-  duration: z.number().positive(),
+  bounce: z
+    .union([z.boolean(), z.literal('true'), z.literal('false')])
+    .transform((value) => value === true || value === 'true'),
+  duration: z.coerce.number().positive(),
 });
