@@ -9,6 +9,7 @@ const {
   storePageViewLeaveBody,
 } = require('./pageview.validator');
 const { responseJson } = require('../../cores/response');
+const multer = require('multer');
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.post(
 );
 router.post(
   '/api/v1/pageviews/leave',
+  multer().none(),
   validate('body', storePageViewLeaveBody),
   responseJson(async (req) =>
     storePageViewLeave({ id: req.body.id, body: req.body }),
