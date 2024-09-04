@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const { routes } = require('./src/routes');
-const { default: mongoose } = require('mongoose');
+const { connect } = require('./src/cores/db');
 
 const server = express();
 
@@ -20,7 +20,7 @@ server.use(morgan('tiny'));
 routes.forEach((route) => server.use(route));
 
 async function main() {
-  await mongoose.connect(process.env.DB_URL);
+  await connect();
 
   server.listen(port, () => {
     console.log(`server listening at ${port}`);
