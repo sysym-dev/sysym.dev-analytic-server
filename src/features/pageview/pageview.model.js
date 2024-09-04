@@ -20,6 +20,10 @@ const pageViewSchema = new mongoose.Schema(
     city: String,
     region: String,
     country: String,
+    session: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Session',
+    },
     visitor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Visitor',
