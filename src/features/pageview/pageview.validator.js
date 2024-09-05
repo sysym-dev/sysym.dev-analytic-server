@@ -14,7 +14,7 @@ exports.storePageViewVisitBody = z.object({
     width: z.number().positive(),
     height: z.number().positive(),
   }),
-  visitorId: z.string().optional().nullable(),
+  sessionId: z.string().optional().nullable(),
 });
 
 exports.storePageViewLeaveBody = z.object({
