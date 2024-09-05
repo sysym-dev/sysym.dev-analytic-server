@@ -2,6 +2,7 @@ const { getGeoFromIp } = require('../../cores/ipgeo');
 const bowser = require('bowser');
 const { PageView } = require('./pageview.model');
 const { findSessionAndUniqueStatus } = require('../session/session.service');
+const { Page } = require('../page/page.model');
 
 exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
   const ip = requestIp === '::1' ? process.env.LOCAL_IP : requestIp;
@@ -9,6 +10,9 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
   const parsedUserAgent = bowser.parse(userAgent);
 
   const sessionStatus = await findSessionAndUniqueStatus(body.sessionId);
+  const page =
+    (await Page.findOne({ url: body.page.url })) ||
+    (await Page.create({ url: body.page.url }));
 
   return await PageView.create({
     browser: parsedUserAgent.browser.name,
@@ -29,6 +33,7 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
     session: sessionStatus.session._id,
     visitor: sessionStatus.session.visitor,
     unique: sessionStatus.unique,
+    page: page._id,
   });
 };
 
