@@ -1,3 +1,4 @@
+const { pageRoutes } = require('./features/page/page.routes');
 const { pageviewRoutes } = require('./features/pageview/pageview.routes');
 
-exports.routes = [pageviewRoutes];
+exports.routes = [pageviewRoutes, pageRoutes];
