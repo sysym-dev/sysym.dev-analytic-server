@@ -2,10 +2,13 @@ const { isValidObjectId } = require('mongoose');
 const { Visitor } = require('../visitor/visitor.model');
 const { Session } = require('./session.model');
 
-exports.findSessionAndUniqueStatus = async (sessionId) => {
+exports.findSessionAndUniqueStatus = async (
+  sessionId,
+  { session: dbSession },
+) => {
   if (!sessionId || !isValidObjectId(sessionId)) {
     return {
-      session: await createSession(),
+      session: await createSession({ session: dbSession }),
       unique: true,
     };
   }
@@ -14,7 +17,7 @@ exports.findSessionAndUniqueStatus = async (sessionId) => {
 
   if (!session) {
     return {
-      session: await createSession(),
+      session: await createSession({ session: dbSession }),
       unique: true,
     };
   }
@@ -22,14 +25,21 @@ exports.findSessionAndUniqueStatus = async (sessionId) => {
   if (session.expired) {
     session.depopulate('visitor');
 
+    const [newSession] = await Session.create(
+      [
+        {
+          startAt: new Date(),
+          lastVisitAt: new Date(),
+          lastLeaveAt: null,
+          unique: false,
+          visitor: session.visitor,
+        },
+      ],
+      { session: dbSession },
+    );
+
     return {
-      session: await Session.create({
-        startAt: new Date(),
-        lastVisitAt: new Date(),
-        lastLeaveAt: null,
-        unique: false,
-        visitor: session.visitor,
-      }),
+      session: newSession,
       unique: false,
     };
   }
@@ -37,8 +47,8 @@ exports.findSessionAndUniqueStatus = async (sessionId) => {
   session.lastVisitAt = new Date();
   session.visitor.lastVisitAt = new Date();
 
-  await session.save();
-  await session.visitor.save();
+  await session.save({ session: dbSession });
+  await session.visitor.save({ session: dbSession });
 
   session.depopulate('visitor');
 
@@ -48,17 +58,29 @@ exports.findSessionAndUniqueStatus = async (sessionId) => {
   };
 };
 
-async function createSession() {
-  const visitor = await Visitor.create({
-    firstVisitAt: new Date(),
-    lastVisitAt: new Date(),
-  });
+async function createSession({ session: dbSession }) {
+  const [visitor] = await Visitor.create(
+    [
+      {
+        firstVisitAt: new Date(),
+        lastVisitAt: new Date(),
+      },
+    ],
+    { session: dbSession },
+  );
 
-  return await Session.create({
-    startAt: new Date(),
-    lastVisitAt: new Date(),
-    lastLeaveAt: null,
-    unique: true,
-    visitor: visitor._id,
-  });
+  const [session] = await Session.create(
+    [
+      {
+        startAt: new Date(),
+        lastVisitAt: new Date(),
+        lastLeaveAt: null,
+        unique: true,
+        visitor: visitor._id,
+      },
+    ],
+    { session: dbSession },
+  );
+
+  return session;
 }
