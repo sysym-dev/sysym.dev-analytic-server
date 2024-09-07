@@ -28,10 +28,6 @@ const pageViewSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Visitor',
     },
-    page: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Page',
-    },
     unique: {
       type: Boolean,
       default: true,
