@@ -1,86 +1,26 @@
 const { isValidObjectId } = require('mongoose');
-const { Visitor } = require('../visitor/visitor.model');
 const { Session } = require('./session.model');
+const dayjs = require('dayjs');
 
-exports.findSessionAndUniqueStatus = async (
-  sessionId,
-  { session: dbSession },
-) => {
-  if (!sessionId || !isValidObjectId(sessionId)) {
-    return {
-      session: await createSession({ session: dbSession }),
-      unique: true,
-    };
+exports.findOrUpdateSession = async (sessionId) => {
+  const now = new Date();
+  const nextExpireAt = dayjs().add(30, 'minute').toISOString();
+
+  if (!isValidObjectId(sessionId)) {
+    return await Session.create({ startAt: now, expireAt: nextExpireAt });
   }
 
-  const session = await Session.findById(sessionId).populate('visitor');
-
-  if (!session) {
-    return {
-      session: await createSession({ session: dbSession }),
-      unique: true,
-    };
-  }
-
-  if (session.expired) {
-    session.depopulate('visitor');
-
-    const [newSession] = await Session.create(
-      [
-        {
-          startAt: new Date(),
-          lastVisitAt: new Date(),
-          lastLeaveAt: null,
-          unique: false,
-          visitor: session.visitor,
+  return (
+    (await Session.findOneAndUpdate(
+      {
+        _id: sessionId,
+        expireAt: {
+          $gt: now,
         },
-      ],
-      { session: dbSession },
-    );
-
-    return {
-      session: newSession,
-      unique: false,
-    };
-  }
-
-  session.lastVisitAt = new Date();
-  session.visitor.lastVisitAt = new Date();
-
-  await session.save({ session: dbSession });
-  await session.visitor.save({ session: dbSession });
-
-  session.depopulate('visitor');
-
-  return {
-    session,
-    unique: false,
-  };
+      },
+      {
+        expireAt: nextExpireAt,
+      },
+    )) || (await Session.create({ startAt: now, expireAt: nextExpireAt }))
+  );
 };
-
-async function createSession({ session: dbSession }) {
-  const [visitor] = await Visitor.create(
-    [
-      {
-        firstVisitAt: new Date(),
-        lastVisitAt: new Date(),
-      },
-    ],
-    { session: dbSession },
-  );
-
-  const [session] = await Session.create(
-    [
-      {
-        startAt: new Date(),
-        lastVisitAt: new Date(),
-        lastLeaveAt: null,
-        unique: true,
-        visitor: visitor._id,
-      },
-    ],
-    { session: dbSession },
-  );
-
-  return session;
-}
