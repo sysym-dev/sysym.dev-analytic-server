@@ -1,4 +1,4 @@
 const { PageView } = require('./pageview.model');
 
-exports.checkVisitorIsUnique = async (url, visitorId) =>
-  (await PageView.exists({ url, visitor: visitorId })) === null;
+exports.checkVisitorIsUnique = async (path, visitorId) =>
+  (await PageView.exists({ path, visitor: visitorId })) === null;
