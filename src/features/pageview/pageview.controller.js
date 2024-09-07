@@ -1,18 +1,22 @@
 const { getGeoFromIp } = require('../../cores/ipgeo');
 const bowser = require('bowser');
 const { PageView } = require('./pageview.model');
-const { findSessionAndUniqueStatus } = require('../session/session.service');
-const { Page } = require('../page/page.model');
+const { findOrUpdateSession } = require('../session/session.service');
+const { findOrCreateVisitor } = require('../visitor/visitor.service');
+const { Session } = require('../session/session.model');
+const { checkVisitorIsUnique } = require('./pageview.service');
 
 exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
   const ip = requestIp === '::1' ? process.env.LOCAL_IP : requestIp;
   const geo = await getGeoFromIp(requestIp);
   const parsedUserAgent = bowser.parse(userAgent);
 
-  const sessionStatus = await findSessionAndUniqueStatus(body.sessionId);
-  const page =
-    (await Page.findOne({ url: body.page.url })) ||
-    (await Page.create({ url: body.page.url }));
+  const session = await findOrUpdateSession(body.sessionId);
+  const visitor = await findOrCreateVisitor(body.visitorId);
+
+  const unique =
+    visitor._id.toString() !== body.visitorId ||
+    (await checkVisitorIsUnique(body.page.url, visitor._id));
 
   return await PageView.create({
     browser: parsedUserAgent.browser.name,
@@ -30,10 +34,9 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
     title: body.page.title,
     url: body.page.url,
     visitAt: body.visitAt,
-    session: sessionStatus.session._id,
-    visitor: sessionStatus.session.visitor,
-    unique: sessionStatus.unique,
-    page: page._id,
+    session: session._id,
+    visitor: visitor._id,
+    unique: unique,
   });
 };
 
@@ -41,17 +44,16 @@ exports.storePageViewLeave = async ({ id, body }) => {
   const pageView = await PageView.findOneAndUpdate(
     { _id: id, leaveAt: null },
     { duration: body.duration, bounce: body.bounce, leaveAt: body.leaveAt },
-  ).populate('session');
+  );
 
-  if (!pageView) {
-    return null;
+  if (pageView.session) {
+    await Session.updateOne(
+      {
+        _id: pageView.session,
+      },
+      { lastLeaveAt: new Date() },
+    );
   }
-
-  pageView.session.lastLeaveAt = new Date();
-
-  await pageView.session.save();
-
-  pageView.depopulate('session');
 
   return pageView;
 };

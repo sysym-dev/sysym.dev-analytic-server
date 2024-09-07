@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 
-const visitorSchema = new mongoose.Schema({
-  firstVisitAt: Date,
-  lastVisitAt: Date,
-});
+const visitorSchema = new mongoose.Schema({}, { timestamps: true });
 
 exports.Visitor = mongoose.model('Visitor', visitorSchema);
