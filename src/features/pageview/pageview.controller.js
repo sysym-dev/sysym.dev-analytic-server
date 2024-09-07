@@ -4,6 +4,7 @@ const { PageView } = require('./pageview.model');
 const { findOrUpdateSession } = require('../session/session.service');
 const { findOrCreateVisitor } = require('../visitor/visitor.service');
 const { Session } = require('../session/session.model');
+const { checkVisitorIsUnique } = require('./pageview.service');
 
 exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
   const ip = requestIp === '::1' ? process.env.LOCAL_IP : requestIp;
@@ -13,7 +14,9 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
   const session = await findOrUpdateSession(body.sessionId);
   const visitor = await findOrCreateVisitor(body.visitorId);
 
-  const unique = visitor._id.toString() !== body.visitorId;
+  const unique =
+    visitor._id.toString() !== body.visitorId ||
+    (await checkVisitorIsUnique(body.page.url, visitor._id));
 
   return await PageView.create({
     browser: parsedUserAgent.browser.name,
