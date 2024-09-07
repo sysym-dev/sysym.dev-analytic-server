@@ -10,6 +10,7 @@ const pageViewSchema = new mongoose.Schema(
     loadTime: Number,
     title: String,
     url: String,
+    path: String,
     refferer: String,
     screenWidth: Number,
     screenHeight: Number,

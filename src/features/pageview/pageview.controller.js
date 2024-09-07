@@ -16,7 +16,7 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
 
   const unique =
     visitor._id.toString() !== body.visitorId ||
-    (await checkVisitorIsUnique(body.page.url, visitor._id));
+    (await checkVisitorIsUnique(body.page.path, visitor._id));
 
   return await PageView.create({
     browser: parsedUserAgent.browser.name,
@@ -33,6 +33,7 @@ exports.storePageViewVisit = async ({ ip: requestIp, userAgent, body }) => {
     screenWidth: body.screen.width,
     title: body.page.title,
     url: body.page.url,
+    path: new URL(body.page.url).pathname,
     visitAt: body.visitAt,
     session: session._id,
     visitor: visitor._id,
