@@ -4,10 +4,10 @@ exports.getPages = async () =>
   await PageView.aggregate([
     {
       $group: {
-        _id: '$url',
+        _id: '$path',
         totalViews: { $sum: 1 },
         totalUniqueViews: { $sum: { $cond: ['$unique', 1, 0] } },
       },
     },
-    { $project: { url: '$_id', totalViews: 1, totalUniqueViews: 1 } },
+    { $project: { path: '$_id', totalViews: 1, totalUniqueViews: 1 } },
   ]);
