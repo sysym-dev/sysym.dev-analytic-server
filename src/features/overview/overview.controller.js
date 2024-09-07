@@ -10,7 +10,7 @@ exports.getOverview = async () => {
   return {
     totalPages: countPages.total,
     totalPageviews: await PageView.countDocuments(),
-    uniqueVisitors: await Visitor.countDocuments(),
+    totalUniqueVisitors: await Visitor.countDocuments(),
     totalSessions: await Session.countDocuments(),
   };
 };
