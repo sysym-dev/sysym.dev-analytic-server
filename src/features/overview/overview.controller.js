@@ -66,3 +66,10 @@ exports.getBrowsers = async () =>
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
   ]);
+
+exports.getPlatforms = async () =>
+  await PageView.aggregate([
+    { $group: { _id: '$platform', total: { $sum: 1 } } },
+    { $project: { name: '$_id', total: 1 } },
+    { $sort: { total: -1 } },
+  ]);
