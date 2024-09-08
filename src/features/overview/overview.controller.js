@@ -59,3 +59,10 @@ exports.getCountries = async () =>
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
   ]);
+
+exports.getBrowsers = async () =>
+  await PageView.aggregate([
+    { $group: { _id: '$browser', total: { $sum: 1 } } },
+    { $project: { name: '$_id', total: 1 } },
+    { $sort: { total: -1 } },
+  ]);

@@ -5,6 +5,7 @@ const {
   getPages,
   getSources,
   getCountries,
+  getBrowsers,
 } = require('./overview.controller');
 
 const router = Router();
@@ -24,6 +25,10 @@ router.get(
 router.get(
   '/api/v1/overview/countries',
   responseJson(async () => await getCountries()),
+);
+router.get(
+  '/api/v1/overview/browsers',
+  responseJson(async () => await getBrowsers()),
 );
 
 exports.overviewRoutes = router;
