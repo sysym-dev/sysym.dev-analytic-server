@@ -22,4 +22,9 @@ exports.getPages = async () =>
         averageLoadTime: 1,
       },
     },
+    {
+      $sort: {
+        totalViews: -1,
+      },
+    },
   ]);
