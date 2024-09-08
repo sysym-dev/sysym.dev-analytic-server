@@ -7,7 +7,26 @@ exports.getPages = async () =>
         _id: '$path',
         totalViews: { $sum: 1 },
         totalUniqueViews: { $sum: { $cond: ['$unique', 1, 0] } },
+        totalBounce: { $sum: { $cond: ['$bounce', 1, 0] } },
+        averageDuration: { $avg: '$duration' },
+        averageLoadTime: { $avg: '$loadTime' },
+        lastVisitAt: { $max: '$visitAt' },
       },
     },
-    { $project: { path: '$_id', totalViews: 1, totalUniqueViews: 1 } },
+    {
+      $project: {
+        path: '$_id',
+        totalViews: 1,
+        totalUniqueViews: 1,
+        totalBounce: 1,
+        averageDuration: 1,
+        averageLoadTime: 1,
+        lastVisitAt: 1,
+      },
+    },
+    {
+      $sort: {
+        totalViews: -1,
+      },
+    },
   ]);
