@@ -10,6 +10,7 @@ exports.getPages = async () =>
         totalBounce: { $sum: { $cond: ['$bounce', 1, 0] } },
         averageDuration: { $avg: '$duration' },
         averageLoadTime: { $avg: '$loadTime' },
+        lastVisitAt: { $max: '$visitAt' },
       },
     },
     {
@@ -20,6 +21,7 @@ exports.getPages = async () =>
         totalBounce: 1,
         averageDuration: 1,
         averageLoadTime: 1,
+        lastVisitAt: 1,
       },
     },
     {
