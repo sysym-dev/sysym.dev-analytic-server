@@ -8,6 +8,7 @@ exports.getPages = async () =>
         totalViews: { $sum: 1 },
         totalUniqueViews: { $sum: { $cond: ['$unique', 1, 0] } },
         averageDuration: { $avg: '$duration' },
+        totalBounce: { $sum: { $cond: ['$bounce', 1, 0] } },
       },
     },
     {
@@ -16,6 +17,7 @@ exports.getPages = async () =>
         totalViews: 1,
         totalUniqueViews: 1,
         averageDuration: 1,
+        totalBounce: 1,
       },
     },
   ]);
