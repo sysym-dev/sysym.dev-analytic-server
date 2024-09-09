@@ -15,8 +15,10 @@ exports.getOverview = async () => {
   };
 };
 
-exports.getPages = async () =>
-  await PageView.aggregate([
+exports.getPages = async ({ query }) => {
+  const { skip, limit } = query;
+
+  return await PageView.aggregate([
     {
       $group: {
         _id: '$path',
@@ -44,7 +46,14 @@ exports.getPages = async () =>
         totalViews: -1,
       },
     },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
   ]);
+};
 
 exports.getSources = async () =>
   await PageView.aggregate([
