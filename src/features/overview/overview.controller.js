@@ -15,16 +15,18 @@ exports.getOverview = async () => {
   };
 };
 
-exports.getPages = async () =>
-  await PageView.aggregate([
+exports.getPages = async ({ query }) => {
+  const { skip, limit } = query;
+
+  const [res] = await PageView.aggregate([
     {
       $group: {
         _id: '$path',
         totalViews: { $sum: 1 },
         totalUniqueViews: { $sum: { $cond: ['$unique', 1, 0] } },
         totalBounce: { $sum: { $cond: ['$bounce', 1, 0] } },
-        averageDuration: { $avg: '$duration' },
-        averageLoadTime: { $avg: '$loadTime' },
+        averageDuration: { $avg: { $cond: ['$duration', '$duration', 0] } },
+        averageLoadTime: { $avg: { $cond: ['$loadTime', '$loadTime', 0] } },
         lastVisitAt: { $max: '$visitAt' },
       },
     },
@@ -40,17 +42,37 @@ exports.getPages = async () =>
       },
     },
     {
-      $sort: {
-        totalViews: -1,
+      $facet: {
+        meta: [{ $count: 'total' }],
+        data: [
+          {
+            $sort: {
+              totalViews: -1,
+            },
+          },
+          {
+            $skip: skip,
+          },
+          {
+            $limit: limit,
+          },
+        ],
       },
     },
   ]);
+
+  return {
+    meta: res.meta[0],
+    data: res.data,
+  };
+};
 
 exports.getSources = async () =>
   await PageView.aggregate([
     { $group: { _id: '$refferer', total: { $sum: 1 } } },
     { $project: { url: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);
 
 exports.getCountries = async () =>
@@ -58,6 +80,7 @@ exports.getCountries = async () =>
     { $group: { _id: '$country', total: { $sum: 1 } } },
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);
 
 exports.getBrowsers = async () =>
@@ -65,6 +88,7 @@ exports.getBrowsers = async () =>
     { $group: { _id: '$browser', total: { $sum: 1 } } },
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);
 
 exports.getPlatforms = async () =>
@@ -72,4 +96,5 @@ exports.getPlatforms = async () =>
     { $group: { _id: '$platform', total: { $sum: 1 } } },
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);

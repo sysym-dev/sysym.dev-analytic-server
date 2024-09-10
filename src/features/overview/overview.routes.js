@@ -8,6 +8,8 @@ const {
   getBrowsers,
   getPlatforms,
 } = require('./overview.controller');
+const { validate } = require('../../cores/validator');
+const { getPagesQuery } = require('./overview.validator');
 
 const router = Router();
 
@@ -17,7 +19,8 @@ router.get(
 );
 router.get(
   '/api/v1/overview/pages',
-  responseJson(async () => await getPages()),
+  validate('query', getPagesQuery),
+  responseJson(async (req) => await getPages({ query: req.query })),
 );
 router.get(
   '/api/v1/overview/sources',
