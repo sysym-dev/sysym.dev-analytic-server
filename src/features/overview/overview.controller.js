@@ -72,6 +72,7 @@ exports.getSources = async () =>
     { $group: { _id: '$refferer', total: { $sum: 1 } } },
     { $project: { url: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);
 
 exports.getCountries = async () =>
@@ -79,6 +80,7 @@ exports.getCountries = async () =>
     { $group: { _id: '$country', total: { $sum: 1 } } },
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);
 
 exports.getBrowsers = async () =>
@@ -86,6 +88,7 @@ exports.getBrowsers = async () =>
     { $group: { _id: '$browser', total: { $sum: 1 } } },
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);
 
 exports.getPlatforms = async () =>
@@ -93,4 +96,5 @@ exports.getPlatforms = async () =>
     { $group: { _id: '$platform', total: { $sum: 1 } } },
     { $project: { name: '$_id', total: 1 } },
     { $sort: { total: -1 } },
+    { $limit: 5 },
   ]);
