@@ -3,13 +3,20 @@ const { Session } = require('../session/session.model');
 const { Visitor } = require('../visitor/visitor.model');
 
 exports.getOverview = async () => {
-  const [countPages] = await PageView.aggregate([
-    { $group: { _id: '$path' } },
-    { $count: 'total' },
+  const [pageViewAggregate] = await PageView.aggregate([
+    {
+      $facet: {
+        pageViews: [{ $count: 'total' }],
+        pages: [{ $group: { _id: '$path' } }, { $count: 'total' }],
+      },
+    },
   ]);
+  const [countPages] = pageViewAggregate.pages;
+  const [countPageViews] = pageViewAggregate.pageViews;
+
   return {
     totalPages: countPages ? countPages.total : 0,
-    totalPageviews: await PageView.countDocuments(),
+    totalPageviews: countPageViews ? countPageViews.total : 0,
     totalUniqueVisitors: await Visitor.countDocuments(),
     totalSessions: await Session.countDocuments(),
   };
